@@ -1,5 +1,147 @@
-const form=document.getElementById('searchForm'),query=document.getElementById('query'),results=document.getElementById('results'),message=document.getElementById('message'),count=document.getElementById('resultCount'),player=document.getElementById('playerArea'),statusEl=document.getElementById('playerStatus'),now=document.getElementById('nowPlaying');
-function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-async function search(q){q=q.trim();if(!q)return;query.value=q;message.textContent='Caut în colecțiile publice...';results.innerHTML='';count.textContent='…';try{const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent('('+q+') AND mediatype:(movies OR audio)')+'&fl[]='+encodeURIComponent('identifier,title,description,year,mediatype')+'&rows=24&page=1&output=json&sort[]='+encodeURIComponent('downloads desc');const r=await fetch(url);if(!r.ok)throw Error('Serviciul de căutare nu răspunde.');const data=await r.json();const docs=data.response?.docs||[];count.textContent=docs.length+' rezultate';if(!docs.length){message.textContent='Nu am găsit rezultate pentru această căutare. Încearcă un termen mai general sau o altă categorie.';return;}message.textContent='Alege un material. Redarea depinde de existența unui fișier compatibil și de permisiunile acestuia.';docs.forEach(d=>{const el=document.createElement('article');el.className='item';const desc=Array.isArray(d.description)?d.description[0]:d.description||'';el.innerHTML=`<h3>${esc(d.title||d.identifier)}</h3><p>${esc(d.year||'')} · ${esc(d.mediatype||'')}</p><p>${esc(desc.slice(0,125))}</p><button type="button">Verifică redarea</button><button type="button" class="secondary">Detalii sursă</button>`;el.querySelector('button').onclick=()=>playItem(d);el.querySelectorAll('button')[1].onclick=()=>window.open('https://archive.org/details/'+encodeURIComponent(d.identifier),'_blank','noopener');results.appendChild(el);});}catch(e){count.textContent='—';message.textContent='Nu am putut conecta biblioteca. Verifică internetul și încearcă din nou. ('+e.message+')';}}
-async function playItem(item){statusEl.textContent='Se verifică fișierele…';now.textContent=item.title||item.identifier;player.innerHTML='<div class="placeholder">Se caută un fișier audio/video redabil…</div>';try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(item.identifier));if(!r.ok)throw Error('Metadatele nu sunt disponibile');const meta=await r.json();const fs=meta.files||[];const candidates=fs.filter(f=>f.name&&!f.name.includes('_thumb')&&!f.name.endsWith('.torrent')&&!f.name.endsWith('.xml')&&!f.name.endsWith('.sqlite')).map(f=>({...f,ext:(f.name.split('.').pop()||'').toLowerCase()})).filter(f=>['mp3','m4a','ogg','oga','wav','mp4','m4v','webm'].includes(f.ext));if(!candidates.length)throw Error('Nu există un fișier audio/video compatibil pentru redare directă.');candidates.sort((a,b)=>{const rank=x=>x.ext==='mp4'?0:x.ext==='mp3'?1:x.ext==='m4a'?2:3;return rank(a)-rank(b)});const f=candidates[0],src='https://archive.org/download/'+encodeURIComponent(item.identifier)+'/'+f.name.split('/').map(encodeURIComponent).join('/');const media=document.createElement(f.ext==='mp3'||f.ext==='m4a'||f.ext==='ogg'||f.ext==='oga'||f.ext==='wav'?'audio':'video');media.controls=true;media.playsInline=true;media.preload='metadata';media.src=src;player.innerHTML='';player.appendChild(media);statusEl.textContent='Fișier găsit';now.textContent=item.title||item.identifier;media.play().catch(()=>{statusEl.textContent='Apasă Play pentru redare';});}catch(e){player.innerHTML='<div class="placeholder">'+esc(e.message)+'</div>';statusEl.textContent='Indisponibil';}}
-form.addEventListener('submit',e=>{e.preventDefault();search(query.value)});document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>search(b.dataset.q)));if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+'use strict';
+
+const form = document.getElementById('searchForm');
+const queryInput = document.getElementById('query');
+const results = document.getElementById('results');
+const message = document.getElementById('message');
+const count = document.getElementById('resultCount');
+const playerArea = document.getElementById('playerArea');
+const playerStatus = document.getElementById('playerStatus');
+const nowPlaying = document.getElementById('nowPlaying');
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+async function searchMaterials(term) {
+  const q = String(term || '').trim();
+  if (!q) {
+    message.textContent = 'Scrie un cuvânt în căsuța de căutare.';
+    queryInput.focus();
+    return;
+  }
+
+  message.textContent = 'Caut în Internet Archive…';
+  count.textContent = 'Se caută…';
+  results.replaceChildren();
+
+  const params = new URLSearchParams({
+    q: `(${q}) AND mediatype:(movies OR audio)`,
+    'fl[]': 'identifier,title,description,year,mediatype',
+    rows: '24',
+    page: '1',
+    output: 'json',
+    'sort[]': 'downloads desc'
+  });
+
+  try {
+    const response = await fetch(`https://archive.org/advancedsearch.php?${params.toString()}`);
+    if (!response.ok) throw new Error(`Serverul a răspuns cu codul ${response.status}.`);
+    const data = await response.json();
+    const docs = data?.response?.docs || [];
+
+    count.textContent = `${docs.length} rezultate`;
+    if (docs.length === 0) {
+      message.textContent = 'Nu am găsit rezultate. Încearcă un termen mai general sau o categorie.';
+      return;
+    }
+
+    message.textContent = 'Am găsit materiale. Alege unul pentru a verifica dacă poate fi redat aici.';
+    for (const item of docs) {
+      const card = document.createElement('article');
+      card.className = 'item';
+
+      const title = document.createElement('h3');
+      title.textContent = item.title || item.identifier || 'Material fără titlu';
+
+      const info = document.createElement('p');
+      info.textContent = [item.year, item.mediatype].filter(Boolean).join(' · ');
+
+      const description = document.createElement('p');
+      const desc = Array.isArray(item.description) ? item.description[0] : (item.description || '');
+      description.textContent = String(desc).slice(0, 150);
+
+      const playButton = document.createElement('button');
+      playButton.type = 'button';
+      playButton.textContent = 'Verifică redarea';
+      playButton.addEventListener('click', () => playMaterial(item));
+
+      const sourceButton = document.createElement('button');
+      sourceButton.type = 'button';
+      sourceButton.className = 'secondary';
+      sourceButton.textContent = 'Detalii sursă';
+      sourceButton.addEventListener('click', () => {
+        window.open(`https://archive.org/details/${encodeURIComponent(item.identifier)}`, '_blank', 'noopener');
+      });
+
+      card.append(title, info, description, playButton, sourceButton);
+      results.appendChild(card);
+    }
+  } catch (error) {
+    count.textContent = '—';
+    message.textContent = `Căutarea nu a reușit: ${error.message} Verifică conexiunea și încearcă din nou.`;
+  }
+}
+
+async function playMaterial(item) {
+  playerStatus.textContent = 'Se verifică fișierele…';
+  nowPlaying.textContent = item.title || item.identifier || '';
+  playerArea.textContent = 'Se caută un fișier audio sau video compatibil…';
+
+  try {
+    const response = await fetch(`https://archive.org/metadata/${encodeURIComponent(item.identifier)}`);
+    if (!response.ok) throw new Error('Metadatele materialului nu sunt disponibile.');
+    const metadata = await response.json();
+    const files = metadata.files || [];
+
+    const candidates = files
+      .filter(file => file.name && !file.name.includes('_thumb'))
+      .map(file => ({ ...file, ext: (file.name.split('.').pop() || '').toLowerCase() }))
+      .filter(file => ['mp3', 'm4a', 'ogg', 'oga', 'wav', 'mp4', 'm4v', 'webm'].includes(file.ext));
+
+    if (!candidates.length) {
+      throw new Error('Materialul nu are un fișier compatibil pentru redare directă.');
+    }
+
+    candidates.sort((a, b) => {
+      const rank = ext => ({ mp4: 0, mp3: 1, m4a: 2, webm: 3, ogg: 4, oga: 5, wav: 6, m4v: 7 }[ext] ?? 99);
+      return rank(a.ext) - rank(b.ext);
+    });
+
+    const file = candidates[0];
+    const encodedPath = file.name.split('/').map(encodeURIComponent).join('/');
+    const media = document.createElement(['mp3', 'm4a', 'ogg', 'oga', 'wav'].includes(file.ext) ? 'audio' : 'video');
+    media.controls = true;
+    media.playsInline = true;
+    media.preload = 'metadata';
+    media.src = `https://archive.org/download/${encodeURIComponent(item.identifier)}/${encodedPath}`;
+
+    playerArea.replaceChildren(media);
+    playerStatus.textContent = 'Fișier găsit';
+    media.play().catch(() => {
+      playerStatus.textContent = 'Apasă butonul Play din player.';
+    });
+  } catch (error) {
+    playerArea.textContent = error.message;
+    playerStatus.textContent = 'Indisponibil';
+  }
+}
+
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  searchMaterials(queryInput.value);
+});
+
+document.querySelectorAll('[data-q]').forEach(button => {
+  button.addEventListener('click', () => searchMaterials(button.dataset.q));
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(error => {
+      console.warn('Service worker nu a putut fi înregistrat:', error);
+    });
+  });
+}
