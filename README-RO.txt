@@ -1,4 +1,3 @@
-G-Way – versiunea 2 (PWA demo)
-Include playerul oficial YouTube încorporat prin link video, redare locală a fișierelor audio/video alese de pe iPhone și căutare YouTube (care deschide rezultatele într-o filă separată).
-LIMITĂRI: Nu include YouTube Data API, conturi, recomandări, abonări sau descărcări YouTube. Playerul YouTube poate să nu permită redarea în fundal pe iPhone. Redarea locală folosește fișiere alese manual; browserul nu garantează păstrarea lor în aplicație sau redarea în fundal. Descărcați/folosiți doar conținut pentru care aveți drepturi.
-PUBLICARE: Înlocuiți fișierele din repository-ul GitHub cu cele din acest ZIP, apoi așteptați redeploy GitHub Pages și reîncărcați G-Way în Safari.
+G-Way v3 – Free Video Library (demo PWA)
+Căutare în catalogul public Internet Archive pentru materiale audio/video, cu player HTML5 pentru fișiere compatibile MP4/MP3/WebM. Include categorii exemplu și design responsiv.
+Notă: nu este o bibliotecă exhaustivă și nu caută YouTube. Accesul, redarea și drepturile diferă de la un material la altul; verifică licența înainte de reutilizare. Gratuit pentru utilizator; nu include descărcare offline, conturi sau redare garantată în fundal. Pentru a actualiza GitHub Pages, încarcă fișierele din acest ZIP în rădăcina repository-ului și confirmă Commit changes.
