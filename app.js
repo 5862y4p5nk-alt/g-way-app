@@ -84,6 +84,7 @@ async function expandLibrary(){
 }
 async function playAt(i){
  if(!queue.length)return;queueIndex=((i%queue.length)+queue.length)%queue.length;const e=queue[queueIndex];nowPlaying.textContent=e.title;setStatus(queueLabel());
+ const playerPanel=playerArea.closest('.player');if(playerPanel)playerPanel.scrollIntoView({behavior:'smooth',block:'start'});
  if(archiveMedia){archiveMedia.pause();archiveMedia=null;}
  if(e.type==='youtube')return playYouTubeItem(e);
  if(e.type==='commons'||e.type==='commons-image')return playCommons(e);
@@ -94,7 +95,7 @@ async function playYouTubeItem(e){
  setStatus('Se pregătește playerul YouTube…');
  try{await loadYouTubeAPI();playerArea.replaceChildren();const mount=make('div','ytmount');mount.id='gway-youtube-player';playerArea.append(mount);
  if(ytPlayer?.destroy)try{ytPlayer.destroy();}catch(_){}
- ytPlayer=new YT.Player(mount.id,{videoId:e.id,playerVars:{playsinline:1,rel:0},events:{onReady:x=>x.target.playVideo(),onStateChange:x=>{if(x.data===YT.PlayerState.ENDED)playNext();},onError:()=>setStatus('Acest videoclip nu permite redarea încorporată.')}});setStatus(queueLabel());
+ ytPlayer=new YT.Player(mount.id,{videoId:e.id,playerVars:{playsinline:1,rel:0,autoplay:1},events:{onReady:x=>x.target.playVideo(),onStateChange:x=>{if(x.data===YT.PlayerState.ENDED)playNext();},onError:()=>setStatus('Acest videoclip nu permite redarea încorporată.')}});setStatus(queueLabel());
  }catch(err){setStatus('Player indisponibil');message.textContent=err.message;}
 }
 async function playCommons(e){

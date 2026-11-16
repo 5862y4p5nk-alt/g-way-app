@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gway-universal-v10';
+const CACHE_NAME = 'gway-youtube-style-v11';
 const FILES_TO_CACHE = [
   './',
   './index.html',

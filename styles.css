@@ -15,3 +15,41 @@
 
 .source-label{display:block;padding:0 10px 10px;color:#777;font-size:10px;line-height:1.3}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+
+/* G-Way v11 — YouTube-inspired mobile layout */
+:root{--gw-red:#f00}
+body{background:#fff;color:#0f0f0f}
+header{height:56px;padding:0 14px;border-bottom:0;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.logo{border-radius:7px;background:var(--gw-red)}
+.free{font-size:9px;color:#777}
+main{max-width:1000px;padding:12px 12px 90px}
+.intro{padding:8px 2px 12px}
+.intro h1{font-size:23px;letter-spacing:-.4px}
+.intro p{font-size:12px;color:#606060}
+form{gap:0;margin:10px 0 12px}
+form input{border-radius:24px 0 0 24px;background:#f8f8f8;border-color:#ddd;padding:12px 15px}
+form button{border-radius:0 24px 24px 0;padding:0 17px;background:#f2f2f2;color:#111;border:1px solid #ddd;border-left:0}
+.chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:4px 0 13px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{background:#f2f2f2;border:0;border-radius:8px;padding:9px 13px;font-size:12px;font-weight:600}
+.chips button:active{background:#ddd}
+.keypanel{border-radius:12px;background:#fafafa}
+.player.panel{border:0;border-radius:0;padding:8px 0 12px;margin:10px 0;background:#fff;scroll-margin-top:64px}
+.player .sectionhead h2{font-size:15px}
+#player .ytmount{width:100%;aspect-ratio:16/9;background:#000}
+#player iframe{width:100%;height:100%;border:0}
+.player-placeholder{border-radius:0}
+#nowPlaying{font-size:13px;font-weight:600;color:#222;padding:5px 2px}
+.results .sectionhead h2{font-size:17px}
+.items{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 10px}
+.item{border:0;border-radius:0;background:#fff;overflow:hidden;min-width:0}
+.image-play{position:relative;overflow:hidden;border-radius:10px;background:#eee;aspect-ratio:16/9}
+.image-play:after{content:"▶";position:absolute;right:8px;bottom:7px;background:rgba(0,0,0,.72);color:#fff;font-size:11px;line-height:1;border-radius:4px;padding:5px 7px;opacity:.95}
+.thumbimg{width:100%;height:100%;aspect-ratio:16/9;object-fit:cover}
+.image-title{padding:7px 2px 2px;font-size:12px;font-weight:650;line-height:1.35;min-height:48px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.source-label{padding:0 2px 0;color:#777;font-size:10px}
+.more-results{padding:13px 0}
+.load-more{background:#f2f2f2;color:#111;border-radius:22px}
+.note{background:#fafafa}
+nav{height:62px}
+@media(min-width:700px){.items{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}.thumb{height:auto}}

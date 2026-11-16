@@ -11,3 +11,5 @@ G-WAY UNIVERSAL v10
 6. Aplicația nu descarcă media protejată și nu ocolește restricții.
 7. Pentru YouTube este necesară cheia API proprie; cotele și regulile Google se aplică.
 8. Este o aplicație web statică; nu necesită server propriu sau abonament de găzduire în afara GitHub Pages.
+
+Versiunea 11: interfață inspirată de YouTube, două miniaturi pe rând, fără link extern de deschidere în card; atingerea miniaturii pornește redarea în playerul G-Way și derulează la player. YouTube rămâne în playerul oficial încorporat.
