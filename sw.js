@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gway-universal-v18-player-under-search';
+const CACHE_NAME = 'gway-v21-media-only';
 const FILES_TO_CACHE = [
   './',
   './index.html',

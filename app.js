@@ -57,10 +57,13 @@ async function searchCommons(q){
  const r=await fetch(`https://commons.wikimedia.org/w/api.php?${p}`);if(!r.ok)throw new Error(`Wikimedia Commons ${r.status}`);
  const d=await r.json(),pages=Object.values(d.query?.pages||{});let n=0;
  for(const page of pages){const ii=page.imageinfo?.[0];if(!ii?.url)continue;
-  const ext=(page.title.split('.').pop()||'').toLowerCase(),audio=['ogg','oga','mp3','wav','flac'].includes(ext),video=['webm','ogv','mp4'].includes(ext),image=['jpg','jpeg','png','gif','svg','webp','tif','tiff'].includes(ext);
-  if(!audio&&!video&&!image)continue;
+  const ext=(page.title.split('.').pop()||'').toLowerCase();
+  const audio=['ogg','oga','mp3','wav','flac','m4a'].includes(ext);
+  const video=['webm','ogv','mp4','m4v','mov'].includes(ext);
+  // Skip all still-image formats: JPEG, PNG, GIF, SVG, WebP, TIFF, etc.
+  if(!audio&&!video)continue;
   const meta=ii.extmetadata||{},license=meta.LicenseShortName?.value||'Licență de verificat';
-  if(addToQueue({type:image?'commons-image':'commons',pageid:page.pageid,title:page.title.replace(/^File:/,''),info:`Wikimedia Commons · ${image?'Imagine':audio?'Audio':'Video'} · ${license}`,mediaUrl:ii.url,thumb:ii.thumburl||ii.url,audio}))n++;
+  if(addToQueue({type:'commons',pageid:page.pageid,title:page.title.replace(/^File:/,''),info:`Wikimedia Commons · ${audio?'Audio':'Video'} · ${license}`,mediaUrl:ii.url,thumb:ii.thumburl||ii.url,audio}))n++;
  }return n;
 }
 function updateMore(){
@@ -98,7 +101,7 @@ function updateMediaSession(entry){
 async function loadDiscoverFeed(){
  if(!results||queue.length)return;
  const terms=['popular music videos','documentary nature science','technology tutorials','classic concerts'];
- message.textContent='Se încarcă imagini și materiale din bibliotecile publice…';
+ message.textContent='Se încarcă videoclipuri și materiale audio din bibliotecile publice…';
  count.textContent='Se încarcă…';
  const errors=[];let added=0;
  for(const term of terms){
@@ -109,7 +112,7 @@ async function loadDiscoverFeed(){
  // Restore an empty search state so pagination buttons remain tied to explicit searches.
  currentQuery='';ytNextPage='';archivePage=1;archiveTotal=0;
  count.textContent=`${queue.length} materiale`;
- message.textContent=queue.length?'Atinge direct o miniatură pentru redare.':'Nu s-au putut încărca materiale acum. Folosește căutarea.';
+ message.textContent=queue.length?'Atinge o miniatură video pentru redare.':'Nu s-au putut încărca materiale acum. Folosește căutarea.';
  if(!apiKey)message.textContent+=' Pentru rezultate YouTube, conectează cheia API din Setări YouTube.';
  if(errors.length && !queue.length)message.textContent+=' Verifică conexiunea la internet.';
  setStatus(queueLabel());
@@ -122,17 +125,31 @@ async function playAt(i){
  if(e.type==='commons'||e.type==='commons-image')return playCommons(e);
  return playArchive(e);
 }
-async function playNext(){if(queue.length)await playAt((queueIndex+1)%queue.length);}
+async function playNext(){
+ if(!queue.length)return;
+ const nextIndex=queueIndex+1;
+ if(nextIndex>=queue.length){
+  queueIndex=queue.length;
+  if(archiveMedia){archiveMedia.pause();archiveMedia=null;}
+  if(ytPlayer?.destroy)try{ytPlayer.destroy();}catch(_){}
+  ytPlayer=null;
+  playerArea.replaceChildren(make('div','player-placeholder','Redarea listei s-a încheiat.'));
+  nowPlaying.textContent='Toate materialele au fost redate.';
+  setStatus('Lista s-a încheiat');
+  return;
+ }
+ await playAt(nextIndex);
+}
 async function playYouTubeItem(e){
  setStatus('Se pregătește playerul YouTube…');
  try{await loadYouTubeAPI();playerArea.replaceChildren();const mount=make('div','ytmount');mount.id='gway-youtube-player';playerArea.append(mount);
  if(ytPlayer?.destroy)try{ytPlayer.destroy();}catch(_){}
- ytPlayer=new YT.Player(mount.id,{videoId:e.id,playerVars:{playsinline:1,rel:0,autoplay:1},events:{onReady:x=>x.target.playVideo(),onStateChange:x=>{if(x.data===YT.PlayerState.ENDED)playNext();},onError:()=>setStatus('Acest videoclip nu permite redarea încorporată.')}});setStatus(queueLabel());
+ ytPlayer=new YT.Player(mount.id,{videoId:e.id,playerVars:{playsinline:1,rel:0,autoplay:1},events:{onReady:x=>x.target.playVideo(),onStateChange:x=>{if(x.data===YT.PlayerState.ENDED)playNext();},onError:()=>{setStatus('Videoclip indisponibil. Se încearcă următorul…');playNext();}}});setStatus(queueLabel());
  }catch(err){setStatus('Player indisponibil');message.textContent=err.message;}
 }
 async function playCommons(e){
  if(e.type==='commons-image'){const img=document.createElement('img');img.src=e.mediaUrl;img.alt=e.title;img.style.cssText='display:block;max-width:100%;max-height:65vh;margin:auto;object-fit:contain';playerArea.replaceChildren(img);setStatus('Imagine din Wikimedia Commons');return;}
- const media=document.createElement(e.audio?'audio':'video');media.controls=true;media.playsInline=true;media.preload='metadata';media.src=e.mediaUrl;media.className='archiveplayer';media.addEventListener('ended',playNext);media.addEventListener('error',()=>setStatus('Fișierul Commons nu poate fi redat.'));
+ const media=document.createElement(e.audio?'audio':'video');media.controls=true;media.playsInline=true;media.preload='metadata';media.src=e.mediaUrl;media.className='archiveplayer';media.addEventListener('ended',playNext);media.addEventListener('error',()=>{if(archiveMedia!==media)return;setStatus('Fișier Commons indisponibil. Se încearcă următorul…');playNext();});
  archiveMedia=media;playerArea.replaceChildren(media);setStatus(queueLabel());updateMediaSession(e);media.play().catch(()=>setStatus('Apasă Play în player. Redarea în fundal depinde de iPhone și de sursă.'));
 }
 async function playArchive(e){
@@ -141,22 +158,22 @@ async function playArchive(e){
  const m=await r.json(),files=(m.files||[]).filter(f=>f.name&&!f.name.includes('_thumb')).map(f=>({...f,ext:(f.name.split('.').pop()||'').toLowerCase()})).filter(f=>['mp3','m4a','ogg','oga','wav','mp4','m4v','webm'].includes(f.ext));
  if(!files.length)throw new Error('Nu există un fișier compatibil.');const rank={mp4:0,mp3:1,m4a:2,webm:3,ogg:4,oga:5,wav:6,m4v:7};files.sort((a,b)=>rank[a.ext]-rank[b.ext]);
  const f=files[0],path=f.name.split('/').map(encodeURIComponent).join('/'),audio=['mp3','m4a','ogg','oga','wav'].includes(f.ext),media=document.createElement(audio?'audio':'video');
- media.controls=true;media.playsInline=true;media.preload='metadata';media.src=`https://archive.org/download/${encodeURIComponent(e.item.identifier)}/${path}`;media.className='archiveplayer';media.addEventListener('ended',playNext);media.addEventListener('error',()=>setStatus('Fișierul nu poate fi redat.'));
+ media.controls=true;media.playsInline=true;media.preload='metadata';media.src=`https://archive.org/download/${encodeURIComponent(e.item.identifier)}/${path}`;media.className='archiveplayer';media.addEventListener('ended',playNext);media.addEventListener('error',()=>{if(archiveMedia!==media)return;setStatus('Fișier indisponibil. Se încearcă următorul…');playNext();});
  archiveMedia=media;playerArea.replaceChildren(media);setStatus(queueLabel());updateMediaSession(e);media.play().catch(()=>setStatus('Apasă Play în player.'));
- }catch(err){setStatus('Material indisponibil');message.textContent=err.message;}
+ }catch(err){setStatus('Material indisponibil. Se încearcă următorul…');message.textContent=err.message;await playNext();}
 }
 async function searchMaterials(term){
  const q=String(term||'').trim();if(!q){message.textContent='Scrie un termen de căutare.';return;}
  currentQuery=q;ytNextPage='';archivePage=1;archiveTotal=0;seenMedia.clear();queue=[];queueIndex=-1;
  if(archiveMedia){archiveMedia.pause();archiveMedia=null;}if(ytPlayer?.destroy)try{ytPlayer.destroy();}catch(_){}
  ytPlayer=null;results.replaceChildren();$('moreResults').replaceChildren();$('expandLibrary').hidden=false;
- count.textContent='Se caută…';message.textContent='Caut în YouTube, Internet Archive și Wikimedia Commons…';
+ count.textContent='Se caută…';message.textContent='Caut videoclipuri și materiale audio în YouTube, Internet Archive și Wikimedia Commons…';
  let yt=0,ia=0,wc=0,errs=[];
  try{yt=await searchYouTube(q);}catch(e){errs.push(e.message);}
  try{ia=(await searchArchive(q,1)).count;}catch(e){errs.push(e.message);}
  try{wc=await searchCommons(q);}catch(e){errs.push(e.message);}
  count.textContent=`${queue.length} materiale · ${yt} YouTube · ${ia} Archive · ${wc} Commons`;
- message.textContent=queue.length?'Apasă direct pe imagine pentru redare. Unele rezultate pot avea restricții de redare.':'Nu am găsit rezultate pentru acest termen.';
+ message.textContent=queue.length?'Apasă pe miniatura videoclipului sau pe titlu pentru redare. Sunt afișate doar materiale audio și video, nu fotografii.':'Nu am găsit rezultate pentru acest termen.';
  if(errs.length)message.textContent+=' '+errs.join(' | ');updateMore();setStatus(queueLabel());
 }
 $('expandLibrary').addEventListener('click',expandLibrary);

@@ -31,3 +31,18 @@ Versiunea 16: secțiunea «Despre conținut» eliminată; playerul mutat imediat
 Versiunea 17 corectată: playerul este imediat sub antet, înaintea titlului, căutării și rezultatelor; secțiunea «Despre conținut» este eliminată din HTML și ascunsă defensiv în CSS; eliminată derularea automată la selectarea unui material. Pentru a publica această versiune, înlocuiește toate fișierele din rădăcina repository-ului și fă Commit changes.
 
 Versiunea 18: playerul este plasat direct după formularul de căutare, în interiorul zonei principale, înaintea setărilor și rezultatelor. Secțiunea «Despre conținut» este eliminată din HTML. Derularea automată către player este dezactivată. Cache-ul PWA a fost actualizat la v18.
+
+
+Versiunea 20 – redare automată în lanț:
+- Lista de redare include numai materiale audio și video; imaginile nu blochează redarea.
+- La terminarea unui material, pornește următorul din listă.
+- Dacă un material nu poate fi redat sau nu este disponibil, aplicația încearcă următorul.
+- După ultimul material, lista se oprește.
+- Interfața existentă este păstrată.
+
+
+Versiunea 21 – numai media redabilă:
+- Rezultatele de căutare includ doar videoclipuri și materiale audio.
+- Fotografiile și imaginile statice (JPEG, PNG, GIF, SVG, WebP, TIFF etc.) sunt excluse.
+- Miniaturile rămân doar ca previzualizări pentru videoclipuri.
+- Interfața și redarea automată din versiunea 20 sunt păstrate.
