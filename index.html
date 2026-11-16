@@ -1,13 +1,15 @@
 <!doctype html>
-<html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#fff"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="G-Way">
-<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><link rel="stylesheet" href="styles.css"><title>G-Way – Free Video Library</title></head>
-<body><header><a class="brand" href="#"><span class="logo">▶</span> G-Way</a><span class="free">FREE VIDEO LIBRARY</span></header>
-<main><section class="intro"><span class="eyebrow">DESCOPERĂ • ÎNVAȚĂ • ASCULTĂ</span><h1>Ce vrei să vezi astăzi?</h1><p>Explorează materiale video și audio gratuite din colecții publice. Caută și redă aici conținutul disponibil pentru vizionare.</p></section>
-<form id="searchForm"><input id="q" placeholder="Caută muzică, reparații telefoane, documentare..." autocomplete="off"><button>Caută</button></form>
-<div class="chips"><button data-q="1960s music">Anii ʼ60</button><button data-q="1970s music">Anii ʼ70</button><button data-q="1980s music">Anii ʼ80</button><button data-q="phone repair tutorial">Reparare telefoane</button><button data-q="documentary">Documentare</button><button data-q="cooking tutorial">Rețete</button></div>
-<section class="player panel"><div class="sectionhead"><h2>Player G-Way</h2><span id="playStatus">Alege un material</span></div><video id="player" controls playsinline preload="metadata"></video><div id="nowPlaying">Materialele selectate se redau aici.</div></section>
-<section class="results"><div class="sectionhead"><h2>Bibliotecă publică</h2><span id="count"></span></div><div id="message">Caută un subiect sau alege o categorie de mai sus.</div><div id="items" class="items"></div></section>
-<section class="note panel"><b>Despre conținut</b><p>G-Way caută în colecțiile Internet Archive și afișează fișierele audio/video disponibile pentru redare. Gratuit pentru utilizator. „Public” sau „gratuit de vizionat” nu înseamnă automat domeniu public: verifică licența fiecărui material înainte de reutilizare. Nu includem extragerea sau descărcarea videoclipurilor de pe YouTube.</p></section>
-</main><nav><a class="active" href="#">⌂<small>Acasă</small></a><a href="#searchForm">⌕<small>Caută</small></a><a href="#items">▤<small>Bibliotecă</small></a></nav>
-<script src="app.js"></script><script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script></body></html>
+<html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"><title>G-Way</title></head>
+<body>
+<header><div class="brand"><span class="logo">▶</span><b>G-Way</b></div><small>FREE VIDEO LIBRARY</small></header>
+<main>
+<section class="intro"><p class="eyebrow">DESCOPERĂ · ÎNVAȚĂ · ASCULTĂ</p><h1>Ce vrei să vezi astăzi?</h1><p> Caută materiale video și audio disponibile public în colecțiile Internet Archive. Redarea se face aici când există un fișier compatibil.</p>
+<form id="searchForm"><input id="query" type="search" placeholder="Caută muzică, reparații telefoane..." autocomplete="off"><button>Caută</button></form>
+<div class="chips"><button data-q="1960s music">Anii ’60</button><button data-q="1970s music">Anii ’70</button><button data-q="1980s music">Anii ’80</button><button data-q="mobile phone repair">Reparare telefoane</button><button data-q="documentary">Documentare</button></div>
+</section>
+<section class="player card"><div class="section-head"><h2>Player G-Way</h2><span id="playerStatus">Alege un material</span></div><div id="playerArea" class="player-area"><div class="placeholder">Alege un rezultat din biblioteca publică pentru redare</div></div><p id="nowPlaying" class="muted">Materialele selectate se redau aici.</p></section>
+<section class="library"><div class="section-head"><h2>Bibliotecă publică</h2><span id="resultCount">0 rezultate</span></div><p id="message" class="muted">Caută un subiect sau alege o categorie de mai sus.</p><div id="results" class="results"></div></section>
+<section class="note"><b>Despre conținut</b><p>G-Way caută în Internet Archive. Faptul că un material este accesibil public nu înseamnă automat că poate fi redistribuit sau descărcat. Redarea și descărcarea depind de licența și permisiunile fiecărui material. Unele fișiere pot să nu fie compatibile.</p></section>
+</main>
+<nav><a class="active" href="#top">⌂<span>Acasă</span></a><a href="#searchForm">⌕<span>Caută</span></a><a href="#results">▤<span>Bibliotecă</span></a></nav>
+<script src="app.js"></script></body></html>
