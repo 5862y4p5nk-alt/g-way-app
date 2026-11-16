@@ -27,3 +27,5 @@ Versiunea 14: interfață întunecată, fără bara de navigare de jos și făr�
 Versiunea 15: tema întunecată este setată și în meta theme-color și în CSS; miniaturile sunt mai mari, fără rame roșii sau cercuri decorative, cu colțuri ușor rotunjite și buton Play discret. Bara de navigare de jos rămâne eliminată.
 
 Versiunea 16: secțiunea «Despre conținut» eliminată; playerul mutat imediat sub bara de căutare, deasupra rezultatelor; eliminată derularea automată către player când se selectează un material. Ajustări pentru ecrane iPhone.
+
+Versiunea 17 corectată: playerul este imediat sub antet, înaintea titlului, căutării și rezultatelor; secțiunea «Despre conținut» este eliminată din HTML și ascunsă defensiv în CSS; eliminată derularea automată la selectarea unui material. Pentru a publica această versiune, înlocuiește toate fișierele din rădăcina repository-ului și fă Commit changes.
