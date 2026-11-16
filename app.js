@@ -117,7 +117,6 @@ async function loadDiscoverFeed(){
 
 async function playAt(i){
  if(!queue.length)return;queueIndex=((i%queue.length)+queue.length)%queue.length;const e=queue[queueIndex];nowPlaying.textContent=e.title;setStatus(queueLabel());updateMediaSession(e);
- const playerPanel=playerArea.closest('.player');if(playerPanel)playerPanel.scrollIntoView({behavior:'smooth',block:'start'});
  if(archiveMedia){archiveMedia.pause();archiveMedia=null;}
  if(e.type==='youtube')return playYouTubeItem(e);
  if(e.type==='commons'||e.type==='commons-image')return playCommons(e);

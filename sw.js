@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gway-universal-v15-dark-polish';
+const CACHE_NAME = 'gway-universal-v16-player-top';
 const FILES_TO_CACHE = [
   './',
   './index.html',
