@@ -122,6 +122,7 @@ async function playAt(i){
  if(!queue.length)return;queueIndex=((i%queue.length)+queue.length)%queue.length;const e=queue[queueIndex];nowPlaying.textContent=e.title;setStatus(queueLabel());updateMediaSession(e);
  if(archiveMedia){archiveMedia.pause();archiveMedia=null;}
  if(e.type==='youtube')return playYouTubeItem(e);
+ if(ytPlayer?.destroy){try{ytPlayer.destroy();}catch(_){} ytPlayer=null;}
  if(e.type==='commons'||e.type==='commons-image')return playCommons(e);
  return playArchive(e);
 }
@@ -142,9 +143,27 @@ async function playNext(){
 }
 async function playYouTubeItem(e){
  setStatus('Se pregătește playerul YouTube…');
- try{await loadYouTubeAPI();playerArea.replaceChildren();const mount=make('div','ytmount');mount.id='gway-youtube-player';playerArea.append(mount);
- if(ytPlayer?.destroy)try{ytPlayer.destroy();}catch(_){}
- ytPlayer=new YT.Player(mount.id,{videoId:e.id,playerVars:{playsinline:1,rel:0,autoplay:1},events:{onReady:x=>x.target.playVideo(),onStateChange:x=>{if(x.data===YT.PlayerState.ENDED)playNext();},onError:()=>{setStatus('Videoclip indisponibil. Se încearcă următorul…');playNext();}}});setStatus(queueLabel());
+ try{
+  await loadYouTubeAPI();
+  // Keep the same YouTube iframe between consecutive YouTube videos.
+  // Recreating the iframe at ENDED can cause iOS browsers to block autoplay.
+  if(ytPlayer&&typeof ytPlayer.loadVideoById==='function'){
+   ytPlayer.loadVideoById({videoId:e.id});
+   setStatus(queueLabel());
+   return;
+  }
+  playerArea.replaceChildren();
+  const mount=make('div','ytmount');mount.id='gway-youtube-player';playerArea.append(mount);
+  ytPlayer=new YT.Player(mount.id,{
+   videoId:e.id,
+   playerVars:{playsinline:1,rel:0,autoplay:1},
+   events:{
+    onReady:x=>{x.target.loadVideoById({videoId:e.id});},
+    onStateChange:x=>{if(x.data===YT.PlayerState.ENDED)playNext();},
+    onError:()=>{setStatus('Videoclip indisponibil. Se încearcă următorul…');playNext();}
+   }
+  });
+  setStatus(queueLabel());
  }catch(err){setStatus('Player indisponibil');message.textContent=err.message;}
 }
 async function playCommons(e){

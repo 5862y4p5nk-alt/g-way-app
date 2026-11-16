@@ -46,3 +46,9 @@ Versiunea 21 – numai media redabilă:
 - Fotografiile și imaginile statice (JPEG, PNG, GIF, SVG, WebP, TIFF etc.) sunt excluse.
 - Miniaturile rămân doar ca previzualizări pentru videoclipuri.
 - Interfața și redarea automată din versiunea 20 sunt păstrate.
+
+
+Versiunea 22 – corecție redare YouTube consecutivă:
+- Playerul YouTube este reutilizat între videoclipuri YouTube consecutive, în loc să fie distrus și recreat la fiecare trecere.
+- Următorul videoclip este încărcat în același player prin loadVideoById, pentru a evita blocarea pornirii automate cauzată de recrearea iframe-ului pe iPhone.
+- Se păstrează filtrarea doar audio/video și interfața existentă.
