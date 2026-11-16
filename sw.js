@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gway-v6';
+const CACHE_NAME = 'gway-v7-autoplay';
 const FILES_TO_CACHE = [
   './',
   './index.html',
