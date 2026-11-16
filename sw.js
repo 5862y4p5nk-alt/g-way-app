@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gway-universal-v14-dark';
+const CACHE_NAME = 'gway-universal-v15-dark-polish';
 const FILES_TO_CACHE = [
   './',
   './index.html',

@@ -23,3 +23,5 @@ Versiunea 12:
 Versiunea 13: interfață mai prietenoasă, secțiune Explorează cu carduri vizuale, căutare simplă, grilă de rezultate și navigare inferioară. Limitările PWA/iOS pentru redare cu ecranul stins rămân; această versiune nu transformă site-ul într-o aplicație iOS nativă.
 
 Versiunea 14: interfață întunecată, fără bara de navigare de jos și fără carduri de categorii; pagina pune în prim-plan căutarea și fluxul de miniaturi video. La pornire încearcă să încarce automat materiale din sursele configurate. Pentru YouTube este necesară cheia API salvată pe telefon. Limitările iOS/PWA și ale playerului YouTube privind redarea cu ecranul stins rămân.
+
+Versiunea 15: tema întunecată este setată și în meta theme-color și în CSS; miniaturile sunt mai mari, fără rame roșii sau cercuri decorative, cu colțuri ușor rotunjite și buton Play discret. Bara de navigare de jos rămâne eliminată.
