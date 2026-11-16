@@ -8,7 +8,7 @@ if(apiKey){apiInput.value=apiKey;keyStatus.textContent='Cheie salvată pe acest 
 let queue=[],queueIndex=-1,ytPlayer=null,ytApiReady=false,ytApiLoading=false,archiveMedia=null;
 let currentQuery='',ytNextPage='',archivePage=1,archiveTotal=0,moreButton=null,loadingMore=false;
 const seenMedia=new Set();
-let mediaSessionReady=false;
+let mediaSessionReady=false,ytQuotaExceeded=false;
 function make(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
 function setStatus(t){playerStatus.textContent=t;}
 function queueLabel(){return queue.length?`Redare continuă · ${queueIndex+1}/${queue.length}`:'Alege un material';}
@@ -36,10 +36,19 @@ function addCard(item,play){
 $('saveKey').addEventListener('click',()=>{const v=apiInput.value.trim();if(!v){keyStatus.textContent='Introdu cheia mai întâi';return;}localStorage.setItem('gway_youtube_key',v);apiKey=v;keyStatus.textContent='Cheie salvată pe acest telefon';});
 $('forgetKey').addEventListener('click',()=>{localStorage.removeItem('gway_youtube_key');apiKey='';apiInput.value='';keyStatus.textContent='Cheie ștearsă din acest telefon';});
 async function searchYouTube(q,pageToken=''){
+ if(ytQuotaExceeded)throw new Error('Limita zilnică de căutare YouTube a fost atinsă. Celelalte biblioteci rămân disponibile.');
  if(!apiKey)throw new Error('YouTube: adaugă cheia API în secțiunea Conectare YouTube.');
  const p={part:'snippet',type:'video',maxResults:'50',q,key:apiKey};if(pageToken)p.pageToken=pageToken;
  const r=await fetch('https://www.googleapis.com/youtube/v3/search?'+new URLSearchParams(p)),d=await r.json();
- if(!r.ok)throw new Error(d.error?.message||`YouTube ${r.status}`);ytNextPage=d.nextPageToken||'';let n=0;
+ if(!r.ok){
+  const reason=d.error?.errors?.[0]?.reason||'';
+  if(r.status===403&&['quotaExceeded','dailyLimitExceeded','rateLimitExceeded'].includes(reason)){
+   ytQuotaExceeded=true;ytNextPage='';
+   throw new Error('Limita zilnică YouTube a fost atinsă. Căutarea continuă în Internet Archive și Wikimedia Commons.');
+  }
+  throw new Error(d.error?.message||`YouTube ${r.status}`);
+ }
+ ytNextPage=d.nextPageToken||'';let n=0;
  for(const v of d.items||[]){const id=v.id?.videoId;if(!id)continue;const sn=v.snippet||{};
   if(addToQueue({type:'youtube',id,title:sn.title||'Videoclip YouTube',info:`YouTube · ${sn.channelTitle||''}`,thumb:sn.thumbnails?.high?.url||sn.thumbnails?.medium?.url||sn.thumbnails?.default?.url}))n++;
  }return n;
@@ -68,12 +77,12 @@ async function searchCommons(q){
 }
 function updateMore(){
  const wrap=$('moreResults');wrap.replaceChildren();
- if(!ytNextPage&&archivePage*50>=archiveTotal)return;
+ if((!ytNextPage||ytQuotaExceeded)&&archivePage*50>=archiveTotal)return;
  moreButton=make('button','load-more','Încarcă mai multe rezultate');moreButton.addEventListener('click',loadMore);wrap.append(moreButton);
 }
 async function loadMore(){
  if(loadingMore)return;loadingMore=true;moreButton.disabled=true;moreButton.textContent='Se încarcă…';let added=0,errs=[];
- if(ytNextPage)try{added+=await searchYouTube(currentQuery,ytNextPage);}catch(e){errs.push(e.message);ytNextPage='';}
+ if(ytNextPage&&!ytQuotaExceeded)try{added+=await searchYouTube(currentQuery,ytNextPage);}catch(e){errs.push(e.message);ytNextPage='';}
  if(archivePage*50<archiveTotal)try{archivePage++;added+=(await searchArchive(currentQuery,archivePage)).count;}catch(e){errs.push(e.message);}
  loadingMore=false;count.textContent=`${queue.length} materiale găsite`;message.textContent=added?`Au fost adăugate ${added} materiale.`:'Nu mai sunt rezultate noi.'+(errs.length?' '+errs.join(' | '):'');updateMore();setStatus(queueLabel());
 }
@@ -81,7 +90,17 @@ async function expandLibrary(){
  if(loadingMore||!currentQuery)return;loadingMore=true;const b=$('expandLibrary');b.disabled=true;b.textContent='Se extinde biblioteca…';
  const savedYtToken=ytNextPage,savedArchiveTotal=archiveTotal,savedArchivePage=archivePage;
  const terms=[`${currentQuery} songs`,`${currentQuery} live concert`,`${currentQuery} official music video`,`${currentQuery} full documentary`];let added=0,errs=[];
- for(const q of terms){for(const fn of [searchYouTube,searchArchive,searchCommons])try{if(fn===searchYouTube)added+=await fn(q,'');else if(fn===searchArchive)added+=(await fn(q,1)).count;else added+=await fn(q);}catch(e){errs.push(e.message);}}
+ // Keep YouTube API usage low: at most one additional YouTube search per expansion.
+ if(apiKey&&!ytQuotaExceeded){
+  try{added+=await searchYouTube(`${currentQuery} official music video`,'');}
+  catch(e){errs.push(e.message);}
+ }
+ for(const q of terms){
+  for(const fn of [searchArchive,searchCommons]){
+   try{if(fn===searchArchive)added+=(await fn(q,1)).count;else added+=await fn(q);}
+   catch(e){errs.push(e.message);}
+  }
+ }
  ytNextPage=savedYtToken;archiveTotal=savedArchiveTotal;archivePage=savedArchivePage;
  count.textContent=`${queue.length} materiale în bibliotecă`;message.textContent=added?`Biblioteca a fost extinsă cu ${added} materiale noi.`:'Nu au fost găsite materiale noi.';if(errs.length)message.textContent+=' '+errs.join(' · ');
  b.disabled=false;b.textContent='Extinde biblioteca din nou';loadingMore=false;updateMore();setStatus(queueLabel());
@@ -101,11 +120,11 @@ function updateMediaSession(entry){
 async function loadDiscoverFeed(){
  if(!results||queue.length)return;
  const terms=['popular music videos','documentary nature science','technology tutorials','classic concerts'];
- message.textContent='Se încarcă videoclipuri și materiale audio din bibliotecile publice…';
+ message.textContent='Se încarcă materiale audio și video din Internet Archive și Wikimedia Commons…';
  count.textContent='Se încarcă…';
  const errors=[];let added=0;
+ // Automatic discovery must not burn the user's limited YouTube search quota.
  for(const term of terms){
-  try{if(apiKey)added+=await searchYouTube(term,'');}catch(e){errors.push(e.message);}
   try{added+=(await searchArchive(term,1)).count;}catch(e){errors.push(e.message);}
   try{added+=await searchCommons(term);}catch(e){errors.push(e.message);}
  }
@@ -234,6 +253,7 @@ async function searchMaterials(term){
  try{wc=await searchCommons(q);}catch(e){errs.push(e.message);}
  count.textContent=`${queue.length} materiale · ${yt} YouTube · ${ia} Archive · ${wc} Commons`;
  message.textContent=queue.length?'Apasă pe miniatura videoclipului sau pe titlu pentru redare. Sunt afișate doar materiale audio și video, nu fotografii.':'Nu am găsit rezultate pentru acest termen.';
+ if(ytQuotaExceeded)message.textContent+=' YouTube a atins limita de căutare; rezultatele din Internet Archive și Wikimedia Commons sunt căutate în continuare.';
  if(errs.length)message.textContent+=' '+errs.join(' | ');updateMore();setStatus(queueLabel());
 }
 $('expandLibrary').addEventListener('click',expandLibrary);

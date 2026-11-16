@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gway-v23-native-youtube-playlist';
+const CACHE_NAME = 'gway-v24-quota-library-fix';
 const FILES_TO_CACHE = [
   './',
   './index.html',

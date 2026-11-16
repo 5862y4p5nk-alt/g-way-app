@@ -61,3 +61,11 @@ Versiunea 23 – playlist YouTube nativ:
 - La finalul grupului YouTube, redarea revine la următorul material din lista mixtă.
 - Dacă YouTube blochează autoplay, aplicația afișează un mesaj explicit; nu poate ocoli politica browserului.
 - Interfața și filtrarea doar audio/video sunt păstrate.
+
+
+Versiunea 24 – protejarea cotei YouTube și biblioteci independente:
+- Căutarea automată la pornire nu mai consumă cota YouTube; descoperirea inițială folosește Internet Archive și Wikimedia Commons.
+- Căutarea manuală folosește YouTube o singură dată pentru termenul introdus.
+- Extinderea bibliotecii limitează apelurile YouTube și continuă căutarea în Archive și Commons.
+- Dacă YouTube raportează quotaExceeded, aplicația nu mai repetă inutil apelurile și afișează un mesaj clar.
+- Rezultatele audio/video și playerul YouTube nativ din v23 sunt păstrate.
