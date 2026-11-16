@@ -3,11 +3,9 @@
 <meta name="theme-color" content="#0f0f0f"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="G-Way">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><link rel="stylesheet" href="styles.css"><title>G-Way – Free Video Library</title></head>
 <body><header><a class="brand" href="#"><span class="logo">▶</span> G-Way</a><span class="free">VIDEO • MUZICĂ • DOCUMENTARE</span></header>
-<section class="player panel"><div class="sectionhead"><h2>Player</h2><span id="playStatus">Alege un material</span></div><div id="player"><div class="player-placeholder">Alege un material din bibliotecă pentru a începe.</div></div><div id="nowPlaying">Materialele selectate se redau aici.</div></section>
-
-
 <main><section class="intro"><h1>Bun venit!</h1><p>Alege ceva frumos de urmărit sau de ascultat.</p></section>
 <form id="searchForm"><input id="q" placeholder="Caută muzică, reparații telefoane, documentare..." autocomplete="off"><button>Caută</button></form>
+<section class="player panel"><div class="sectionhead"><h2>Player</h2><span id="playStatus">Alege un material</span></div><div id="player"><div class="player-placeholder">Alege un material din bibliotecă pentru a începe.</div></div><div id="nowPlaying">Materialele selectate se redau aici.</div></section>
 <details class="panel keypanel"><summary><strong>Setări YouTube</strong> <span id="keyStatus">Cheie nesetată</span></summary><p>Introdu cheia API creată în Google Cloud. Se păstrează numai pe acest telefon.</p><input id="apiKey" type="password" autocomplete="off" placeholder="Lipește cheia API aici"><div class="keyactions"><button id="saveKey" type="button">Salvează cheia</button><button id="forgetKey" class="secondary" type="button">Șterge cheia</button></div><small>Nu trimite cheia nimănui. Restricțiile Google pentru site și API trebuie păstrate.</small></details>
 
 <section class="results"><div class="sectionhead"><h2>Videoclipuri pentru tine</h2><span id="count"></span></div><div id="message">Se încarcă biblioteca…</div><div id="items" class="items"></div><div id="moreResults" class="more-results"></div><div class="more-results"><button id="expandLibrary" class="load-more" type="button" hidden>Extinde biblioteca</button></div></section>

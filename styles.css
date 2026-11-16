@@ -187,3 +187,8 @@ header{width:100%;min-width:0}
 .note, section.note, .note.panel {display:none!important;visibility:hidden!important;height:0!important;margin:0!important;padding:0!important;border:0!important}
 .player.panel {margin:10px 12px 18px!important;position:relative;scroll-margin-top:0!important}
 main {padding-top:8px!important}
+
+/* G-Way v18: player directly beneath the search bar */
+.player.panel{display:block!important;position:relative!important;margin:12px 0 22px!important;padding:12px!important;scroll-margin-top:0!important;order:0!important}
+main>.player.panel{margin-top:12px!important}
+.note,.note.panel,section.note{display:none!important;visibility:hidden!important}

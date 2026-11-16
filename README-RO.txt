@@ -29,3 +29,5 @@ Versiunea 15: tema întunecată este setată și în meta theme-color și în CS
 Versiunea 16: secțiunea «Despre conținut» eliminată; playerul mutat imediat sub bara de căutare, deasupra rezultatelor; eliminată derularea automată către player când se selectează un material. Ajustări pentru ecrane iPhone.
 
 Versiunea 17 corectată: playerul este imediat sub antet, înaintea titlului, căutării și rezultatelor; secțiunea «Despre conținut» este eliminată din HTML și ascunsă defensiv în CSS; eliminată derularea automată la selectarea unui material. Pentru a publica această versiune, înlocuiește toate fișierele din rădăcina repository-ului și fă Commit changes.
+
+Versiunea 18: playerul este plasat direct după formularul de căutare, în interiorul zonei principale, înaintea setărilor și rezultatelor. Secțiunea «Despre conținut» este eliminată din HTML. Derularea automată către player este dezactivată. Cache-ul PWA a fost actualizat la v18.
