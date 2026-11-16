@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gway-universal-v12-background';
+const CACHE_NAME = 'gway-universal-v13-friendly';
 const FILES_TO_CACHE = [
   './',
   './index.html',

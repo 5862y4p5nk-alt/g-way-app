@@ -19,3 +19,5 @@ Versiunea 12:
 - Căutarea manuală rămâne disponibilă.
 - Pentru audio HTML5 compatibil se setează Media Session și comenzile Play/Pause/Next/Previous pe ecranul blocat, dacă iOS le permite.
 - Limitare importantă: GitHub Pages PWA nu poate garanta rularea în fundal după blocarea ecranului pe iPhone. YouTube embedded nu oferă redare garantată cu ecranul stins; aceasta depinde de regulile YouTube și iOS. Pentru suport robust este necesară o aplicație iOS nativă cu background audio entitlement.
+
+Versiunea 13: interfață mai prietenoasă, secțiune Explorează cu carduri vizuale, căutare simplă, grilă de rezultate și navigare inferioară. Limitările PWA/iOS pentru redare cu ecranul stins rămân; această versiune nu transformă site-ul într-o aplicație iOS nativă.
