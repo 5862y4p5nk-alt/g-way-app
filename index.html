@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="G-Way">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <title>G-Way</title>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#" aria-label="G-Way Acasă"><span class="logo">▶</span><strong>G-Way</strong></a>
+  <button class="round" aria-label="Caută" id="focusSearch">⌕</button>
+  <button class="round" aria-label="Profil">●</button>
+</header>
+<main>
+  <form id="searchForm" class="search">
+    <input id="query" type="search" placeholder="Caută videoclipuri..." autocomplete="off">
+    <button type="submit">Caută</button>
+  </form>
+  <nav class="chips" aria-label="Categorii">
+    <button class="chip active" data-term="">Toate</button>
+    <button class="chip" data-term="muzică">Muzică</button>
+    <button class="chip" data-term="gaming">Gaming</button>
+    <button class="chip" data-term="sport">Sport</button>
+    <button class="chip" data-term="tehnologie">Tehnologie</button>
+    <button class="chip" data-term="știri">Știri</button>
+  </nav>
+  <section id="notice" class="notice">
+    <strong>Bun venit la G-Way!</strong>
+    <p>Aceasta este prima demonstrație. Caută un videoclip pentru a deschide rezultatele YouTube.</p>
+  </section>
+  <section id="results" class="results" aria-live="polite">
+    <article class="video-card">
+      <div class="thumb demo-thumb"><span>G-WAY</span><small>VIDEO</small></div>
+      <div class="video-info"><div class="avatar">G</div><div><strong>G-Way – experiența ta video</strong><p>Demo G-Way · Previzualizare</p></div></div>
+    </article>
+  </section>
+</main>
+<nav class="bottom-nav">
+  <a class="selected" href="#"><span>⌂</span>Acasă</a>
+  <button id="shorts"><span>▣</span>Shorts</button>
+  <button id="create"><span class="plus">＋</span></button>
+  <button id="subscriptions"><span>▤</span>Abonări</button>
+  <button id="library"><span>◉</span>Tu</button>
+</nav>
+<script src="app.js"></script>
+</body>
+</html>
