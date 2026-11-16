@@ -1,12 +1,12 @@
 'use strict';
 
 const form = document.getElementById('searchForm');
-const queryInput = document.getElementById('query');
-const results = document.getElementById('results');
+const queryInput = document.getElementById('q');
+const results = document.getElementById('items');
 const message = document.getElementById('message');
-const count = document.getElementById('resultCount');
-const playerArea = document.getElementById('playerArea');
-const playerStatus = document.getElementById('playerStatus');
+const count = document.getElementById('count');
+let playerArea = document.getElementById('player');
+const playerStatus = document.getElementById('playStatus');
 const nowPlaying = document.getElementById('nowPlaying');
 
 function escapeHtml(value = '') {
@@ -88,7 +88,7 @@ async function searchMaterials(term) {
 async function playMaterial(item) {
   playerStatus.textContent = 'Se verifică fișierele…';
   nowPlaying.textContent = item.title || item.identifier || '';
-  playerArea.textContent = 'Se caută un fișier audio sau video compatibil…';
+  playerArea.pause(); playerArea.removeAttribute('src'); playerArea.load();
 
   try {
     const response = await fetch(`https://archive.org/metadata/${encodeURIComponent(item.identifier)}`);
@@ -118,13 +118,13 @@ async function playMaterial(item) {
     media.preload = 'metadata';
     media.src = `https://archive.org/download/${encodeURIComponent(item.identifier)}/${encodedPath}`;
 
-    playerArea.replaceChildren(media);
+    playerArea.replaceWith(media); media.id = 'player'; playerArea = media;
     playerStatus.textContent = 'Fișier găsit';
     media.play().catch(() => {
       playerStatus.textContent = 'Apasă butonul Play din player.';
     });
   } catch (error) {
-    playerArea.textContent = error.message;
+    playerArea.pause(); playerArea.removeAttribute('src'); playerArea.load(); message.textContent = error.message;
     playerStatus.textContent = 'Indisponibil';
   }
 }
