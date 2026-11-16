@@ -142,25 +142,66 @@ async function playNext(){
  await playAt(nextIndex);
 }
 async function playYouTubeItem(e){
- setStatus('Se pregătește playerul YouTube…');
+ setStatus('Se pregătește lista YouTube…');
  try{
   await loadYouTubeAPI();
-  // Keep the same YouTube iframe between consecutive YouTube videos.
-  // Recreating the iframe at ENDED can cause iOS browsers to block autoplay.
-  if(ytPlayer&&typeof ytPlayer.loadVideoById==='function'){
-   ytPlayer.loadVideoById({videoId:e.id});
+  // Let YouTube manage consecutive YouTube items natively as a playlist.
+  // This avoids asking the browser to start a fresh iframe video after every ENDED event.
+  const startIndex=queue.indexOf(e);
+  const ids=[];
+  for(let i=startIndex;i<queue.length&&queue[i].type==='youtube';i++)ids.push(queue[i].id);
+  if(!ids.length)throw new Error('Nu există videoclipuri YouTube în listă.');
+  const syncCurrentVideo=()=>{
+   if(!ytPlayer||typeof ytPlayer.getVideoData!=='function')return;
+   const id=ytPlayer.getVideoData()?.video_id;
+   if(!id)return;
+   const found=queue.findIndex(item=>item.type==='youtube'&&item.id===id);
+   if(found>=0){
+    queueIndex=found;
+    nowPlaying.textContent=queue[found].title;
+    setStatus(queueLabel());
+    updateMediaSession(queue[found]);
+   }
+  };
+  const handleState=event=>{
+   if(event.data===YT.PlayerState.PLAYING){
+    syncCurrentVideo();
+   }
+   if(event.data===YT.PlayerState.ENDED){
+    // YouTube advances internally through the playlist. Only return to G-Way's
+    // mixed-source queue after the final YouTube item in this native playlist.
+    const list=ytPlayer?.getPlaylist?.()||[];
+    const index=ytPlayer?.getPlaylistIndex?.()??-1;
+    if(index<0||index>=list.length-1)playNext();
+   }
+  };
+  const handleError=()=>{
+   setStatus('Un videoclip YouTube nu poate fi redat. Se încearcă următorul…');
+   // Skip a broken YouTube item using the native playlist where possible.
+   const list=ytPlayer?.getPlaylist?.()||[];
+   const index=ytPlayer?.getPlaylistIndex?.()??-1;
+   if(index>=0&&index<list.length-1)ytPlayer.nextVideo();
+   else playNext();
+  };
+  const handleAutoplayBlocked=()=>{
+   setStatus('YouTube a blocat pornirea automată. Atinge Play în player pentru a continua.');
+  };
+  if(ytPlayer&&typeof ytPlayer.loadPlaylist==='function'){
+   ytPlayer.loadPlaylist(ids,0);
    setStatus(queueLabel());
    return;
   }
   playerArea.replaceChildren();
   const mount=make('div','ytmount');mount.id='gway-youtube-player';playerArea.append(mount);
   ytPlayer=new YT.Player(mount.id,{
-   videoId:e.id,
-   playerVars:{playsinline:1,rel:0,autoplay:1},
+   width:'100%',
+   videoId:ids[0],
+   playerVars:{playsinline:1,rel:0,autoplay:1,origin:location.origin},
    events:{
-    onReady:x=>{x.target.loadVideoById({videoId:e.id});},
-    onStateChange:x=>{if(x.data===YT.PlayerState.ENDED)playNext();},
-    onError:()=>{setStatus('Videoclip indisponibil. Se încearcă următorul…');playNext();}
+    onReady:x=>x.target.loadPlaylist(ids,0),
+    onStateChange:handleState,
+    onError:handleError,
+    onAutoplayBlocked:handleAutoplayBlocked
    }
   });
   setStatus(queueLabel());

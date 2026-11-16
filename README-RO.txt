@@ -52,3 +52,12 @@ Versiunea 22 – corecție redare YouTube consecutivă:
 - Playerul YouTube este reutilizat între videoclipuri YouTube consecutive, în loc să fie distrus și recreat la fiecare trecere.
 - Următorul videoclip este încărcat în același player prin loadVideoById, pentru a evita blocarea pornirii automate cauzată de recrearea iframe-ului pe iPhone.
 - Se păstrează filtrarea doar audio/video și interfața existentă.
+
+
+Versiunea 23 – playlist YouTube nativ:
+- Videoclipurile YouTube consecutive sunt transmise playerului YouTube ca o listă nativă.
+- YouTube gestionează trecerea automată între videoclipurile din acea listă.
+- G-Way actualizează contorul și titlul după identificarea videoclipului curent.
+- La finalul grupului YouTube, redarea revine la următorul material din lista mixtă.
+- Dacă YouTube blochează autoplay, aplicația afișează un mesaj explicit; nu poate ocoli politica browserului.
+- Interfața și filtrarea doar audio/video sunt păstrate.

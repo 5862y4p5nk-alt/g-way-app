@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gway-v22-youtube-autoplay';
+const CACHE_NAME = 'gway-v23-native-youtube-playlist';
 const FILES_TO_CACHE = [
   './',
   './index.html',
