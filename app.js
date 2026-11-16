@@ -1,20 +1,5 @@
-const form=document.getElementById('searchForm');
-const query=document.getElementById('query');
-const results=document.getElementById('results');
-const notice=document.getElementById('notice');
-function search(term){
-  const q=term.trim();
-  if(!q){query.focus();return}
-  notice.innerHTML='<strong>Rezultate pentru „'+escapeHtml(q)+'”</strong><p>Se deschide căutarea YouTube într-o filă nouă. Integrarea API G-Way va fi adăugată după configurarea cheii oficiale.</p>';
-  results.innerHTML='<a class="search-result" href="https://www.youtube.com/results?search_query='+encodeURIComponent(q)+'" target="_blank" rel="noopener"><div class="thumb demo-thumb"><span>▶ YouTube</span></div><strong>Vezi rezultatele pentru „'+escapeHtml(q)+'” pe YouTube</strong><p>Deschide căutarea în YouTube</p></a>';
-  window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q),'_blank','noopener');
-}
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-form.addEventListener('submit',e=>{e.preventDefault();search(query.value)});
-document.getElementById('focusSearch').addEventListener('click',()=>query.focus());
-document.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{
- document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');
- if(b.dataset.term){query.value=b.dataset.term;search(b.dataset.term)}else{query.value='';notice.innerHTML='<strong>Bun venit la G-Way!</strong><p>Alege o categorie sau caută un videoclip.</p>';results.innerHTML=''}
-}));
-['shorts','create','subscriptions','library'].forEach(id=>document.getElementById(id).addEventListener('click',()=>{notice.innerHTML='<strong>Funcție în lucru</strong><p>Această secțiune va fi disponibilă într-o versiune viitoare G-Way.</p>'}));
-if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+const $=id=>document.getElementById(id);
+function videoId(raw){try{const u=new URL(raw);if(u.hostname.includes('youtu.be'))return u.pathname.slice(1).split('/')[0];if(u.hostname.includes('youtube.com')){if(u.pathname==='/watch')return u.searchParams.get('v');const m=u.pathname.match(/\/(embed|shorts)\/([^/?]+)/);return m?m[2]:null}}catch(e){}return null}
+$('youtubeForm').addEventListener('submit',e=>{e.preventDefault();const id=videoId($('youtubeUrl').value.trim());if(!id){alert('Te rog lipește un link YouTube valid.');return}const frame=$('youtubePlayer');frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?playsinline=1&rel=0';frame.hidden=false;$('videoPlaceholder').hidden=true;$('videoWrap').classList.remove('empty');$('videoWrap').scrollIntoView({behavior:'smooth',block:'center'});});
+$('searchForm').addEventListener('submit',e=>{e.preventDefault();const q=$('query').value.trim();if(q)window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q),'_blank','noopener');});
+$('mediaFile').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);$('localPlayerArea').hidden=false;$('fileName').textContent=f.name;if(f.type.startsWith('audio/')){$('audioPlayer').src=url;$('audioPlayer').hidden=false;$('localVideo').hidden=true;}else{$('localVideo').src=url;$('localVideo').hidden=false;$('audioPlayer').hidden=true;}});
