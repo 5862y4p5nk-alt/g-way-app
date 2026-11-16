@@ -1,3 +1,13 @@
-G-Way v3 – Free Video Library (demo PWA)
-Căutare în catalogul public Internet Archive pentru materiale audio/video, cu player HTML5 pentru fișiere compatibile MP4/MP3/WebM. Include categorii exemplu și design responsiv.
-Notă: nu este o bibliotecă exhaustivă și nu caută YouTube. Accesul, redarea și drepturile diferă de la un material la altul; verifică licența înainte de reutilizare. Gratuit pentru utilizator; nu include descărcare offline, conturi sau redare garantată în fundal. Pentru a actualiza GitHub Pages, încarcă fișierele din acest ZIP în rădăcina repository-ului și confirmă Commit changes.
+G-WAY UNIVERSAL v10
+====================
+1. Înlocuiește fișierele vechi din repository cu toate fișierele din acest ZIP.
+2. Păstrează cheia YouTube existentă pe telefon; cheia rămâne în localStorage și nu este inclusă în ZIP.
+3. Surse:
+   - YouTube Data API + player oficial încorporat
+   - Internet Archive Advanced Search + fișiere media compatibile
+   - Wikimedia Commons API + fișiere audio/video compatibile
+4. Caută, apoi apasă direct pe imaginea rezultatului. „Încarcă mai multe rezultate” paginează YouTube/Internet Archive. „Extinde biblioteca” caută termeni suplimentari în toate cele trei surse.
+5. Unele rezultate nu pot fi redate încorporat din cauza formatului, licenței sau restricțiilor sursei.
+6. Aplicația nu descarcă media protejată și nu ocolește restricții.
+7. Pentru YouTube este necesară cheia API proprie; cotele și regulile Google se aplică.
+8. Este o aplicație web statică; nu necesită server propriu sau abonament de găzduire în afara GitHub Pages.
