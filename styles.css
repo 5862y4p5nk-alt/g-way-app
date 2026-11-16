@@ -53,3 +53,11 @@ form button{border-radius:0 24px 24px 0;padding:0 17px;background:#f2f2f2;color:
 .note{background:#fafafa}
 nav{height:62px}
 @media(min-width:700px){.items{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}.thumb{height:auto}}
+
+/* v12 home discovery: visual-first, no category labels under search */
+.intro{padding-bottom:8px}
+.intro .eyebrow{display:none}
+.intro h1{margin-top:4px}
+#message{font-size:11px;padding:3px 0 9px}
+.items{margin-top:4px}
+.keypanel summary{cursor:pointer;font-size:13px}

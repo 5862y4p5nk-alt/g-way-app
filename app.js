@@ -8,6 +8,7 @@ if(apiKey){apiInput.value=apiKey;keyStatus.textContent='Cheie salvată pe acest 
 let queue=[],queueIndex=-1,ytPlayer=null,ytApiReady=false,ytApiLoading=false,archiveMedia=null;
 let currentQuery='',ytNextPage='',archivePage=1,archiveTotal=0,moreButton=null,loadingMore=false;
 const seenMedia=new Set();
+let mediaSessionReady=false;
 function make(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
 function setStatus(t){playerStatus.textContent=t;}
 function queueLabel(){return queue.length?`Redare continuă · ${queueIndex+1}/${queue.length}`:'Alege un material';}
@@ -82,8 +83,40 @@ async function expandLibrary(){
  count.textContent=`${queue.length} materiale în bibliotecă`;message.textContent=added?`Biblioteca a fost extinsă cu ${added} materiale noi.`:'Nu au fost găsite materiale noi.';if(errs.length)message.textContent+=' '+errs.join(' · ');
  b.disabled=false;b.textContent='Extinde biblioteca din nou';loadingMore=false;updateMore();setStatus(queueLabel());
 }
+
+function updateMediaSession(entry){
+ if(!('mediaSession' in navigator))return;
+ try{
+  navigator.mediaSession.metadata=new MediaMetadata({title:entry.title||'G-Way',artist:entry.info||'G-Way Universal',album:'G-Way'});
+  navigator.mediaSession.setActionHandler('play',()=>{if(archiveMedia)archiveMedia.play().catch(()=>{});});
+  navigator.mediaSession.setActionHandler('pause',()=>{if(archiveMedia)archiveMedia.pause();});
+  navigator.mediaSession.setActionHandler('nexttrack',()=>playNext());
+  navigator.mediaSession.setActionHandler('previoustrack',()=>playAt(Math.max(0,queueIndex-1)));
+  mediaSessionReady=true;
+ }catch(_){}
+}
+async function loadDiscoverFeed(){
+ if(!results||queue.length)return;
+ const terms=['popular music videos','documentary nature science','technology tutorials','classic concerts'];
+ message.textContent='Se încarcă imagini și materiale din bibliotecile publice…';
+ count.textContent='Se încarcă…';
+ const errors=[];let added=0;
+ for(const term of terms){
+  try{if(apiKey)added+=await searchYouTube(term,'');}catch(e){errors.push(e.message);}
+  try{added+=(await searchArchive(term,1)).count;}catch(e){errors.push(e.message);}
+  try{added+=await searchCommons(term);}catch(e){errors.push(e.message);}
+ }
+ // Restore an empty search state so pagination buttons remain tied to explicit searches.
+ currentQuery='';ytNextPage='';archivePage=1;archiveTotal=0;
+ count.textContent=`${queue.length} materiale`;
+ message.textContent=queue.length?'Atinge direct o miniatură pentru redare.':'Nu s-au putut încărca materiale acum. Folosește căutarea.';
+ if(!apiKey)message.textContent+=' Pentru rezultate YouTube, conectează cheia API din Setări YouTube.';
+ if(errors.length && !queue.length)message.textContent+=' Verifică conexiunea la internet.';
+ setStatus(queueLabel());
+}
+
 async function playAt(i){
- if(!queue.length)return;queueIndex=((i%queue.length)+queue.length)%queue.length;const e=queue[queueIndex];nowPlaying.textContent=e.title;setStatus(queueLabel());
+ if(!queue.length)return;queueIndex=((i%queue.length)+queue.length)%queue.length;const e=queue[queueIndex];nowPlaying.textContent=e.title;setStatus(queueLabel());updateMediaSession(e);
  const playerPanel=playerArea.closest('.player');if(playerPanel)playerPanel.scrollIntoView({behavior:'smooth',block:'start'});
  if(archiveMedia){archiveMedia.pause();archiveMedia=null;}
  if(e.type==='youtube')return playYouTubeItem(e);
@@ -101,7 +134,7 @@ async function playYouTubeItem(e){
 async function playCommons(e){
  if(e.type==='commons-image'){const img=document.createElement('img');img.src=e.mediaUrl;img.alt=e.title;img.style.cssText='display:block;max-width:100%;max-height:65vh;margin:auto;object-fit:contain';playerArea.replaceChildren(img);setStatus('Imagine din Wikimedia Commons');return;}
  const media=document.createElement(e.audio?'audio':'video');media.controls=true;media.playsInline=true;media.preload='metadata';media.src=e.mediaUrl;media.className='archiveplayer';media.addEventListener('ended',playNext);media.addEventListener('error',()=>setStatus('Fișierul Commons nu poate fi redat.'));
- archiveMedia=media;playerArea.replaceChildren(media);setStatus(queueLabel());media.play().catch(()=>setStatus('Apasă Play în player. Următorul material va porni la final.'));
+ archiveMedia=media;playerArea.replaceChildren(media);setStatus(queueLabel());updateMediaSession(e);media.play().catch(()=>setStatus('Apasă Play în player. Redarea în fundal depinde de iPhone și de sursă.'));
 }
 async function playArchive(e){
  setStatus('Se verifică fișierele disponibile…');
@@ -110,7 +143,7 @@ async function playArchive(e){
  if(!files.length)throw new Error('Nu există un fișier compatibil.');const rank={mp4:0,mp3:1,m4a:2,webm:3,ogg:4,oga:5,wav:6,m4v:7};files.sort((a,b)=>rank[a.ext]-rank[b.ext]);
  const f=files[0],path=f.name.split('/').map(encodeURIComponent).join('/'),audio=['mp3','m4a','ogg','oga','wav'].includes(f.ext),media=document.createElement(audio?'audio':'video');
  media.controls=true;media.playsInline=true;media.preload='metadata';media.src=`https://archive.org/download/${encodeURIComponent(e.item.identifier)}/${path}`;media.className='archiveplayer';media.addEventListener('ended',playNext);media.addEventListener('error',()=>setStatus('Fișierul nu poate fi redat.'));
- archiveMedia=media;playerArea.replaceChildren(media);setStatus(queueLabel());media.play().catch(()=>setStatus('Apasă Play în player.'));
+ archiveMedia=media;playerArea.replaceChildren(media);setStatus(queueLabel());updateMediaSession(e);media.play().catch(()=>setStatus('Apasă Play în player.'));
  }catch(err){setStatus('Material indisponibil');message.textContent=err.message;}
 }
 async function searchMaterials(term){
@@ -130,3 +163,5 @@ async function searchMaterials(term){
 $('expandLibrary').addEventListener('click',expandLibrary);
 form.addEventListener('submit',e=>{e.preventDefault();searchMaterials(queryInput.value);});
 document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{queryInput.value=b.dataset.q;searchMaterials(b.dataset.q);}));
+
+window.addEventListener('load',()=>{loadDiscoverFeed();});
