@@ -2,22 +2,12 @@
 <html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#fff"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="G-Way">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><link rel="stylesheet" href="styles.css"><title>G-Way – Free Video Library</title></head>
-<body><header><a class="brand" href="#"><span class="logo">▶</span> G-Way</a><span class="free">DESCOPERĂ • ASCULTĂ • URMĂREȘTE</span></header>
-<main><section class="intro"><span class="eyebrow">BIBLIOTECA TA MEDIA</span><h1>Bun venit în G-Way</h1><p>Muzică, filme, idei și lucruri noi de descoperit.</p></section>
+<body><header><a class="brand" href="#"><span class="logo">▶</span> G-Way</a><span class="free">VIDEO • MUZICĂ • DOCUMENTARE</span></header>
+<main><section class="intro"><span class="eyebrow">BIBLIOTECA TA MEDIA</span><h1>Descoperă și urmărește</h1><p>Videoclipuri și materiale noi, direct în biblioteca ta.</p></section>
 <form id="searchForm"><input id="q" placeholder="Caută muzică, reparații telefoane, documentare..." autocomplete="off"><button>Caută</button></form>
-<section class="discover">
-  <div class="sectionhead"><h2>Explorează</h2><span>O lume de descoperit</span></div>
-  <div class="discover-grid">
-    <button class="discover-card music" type="button" data-q="live music concerts"><span class="discover-emoji">🎵</span><strong>Muzică și concerte</strong><small>Ascultă și descoperă</small></button>
-    <button class="discover-card films" type="button" data-q="documentary full movie"><span class="discover-emoji">🎬</span><strong>Filme și documentare</strong><small>Povești și imagini</small></button>
-    <button class="discover-card learn" type="button" data-q="science education tutorials"><span class="discover-emoji">🌍</span><strong>Învață ceva nou</strong><small>Știință și educație</small></button>
-    <button class="discover-card howto" type="button" data-q="repair how to tutorial"><span class="discover-emoji">🛠️</span><strong>Ghiduri și reparații</strong><small>Idei practice</small></button>
-  </div>
-</section>
 <details class="panel keypanel"><summary><strong>Setări YouTube</strong> <span id="keyStatus">Cheie nesetată</span></summary><p>Introdu cheia API creată în Google Cloud. Se păstrează numai pe acest telefon.</p><input id="apiKey" type="password" autocomplete="off" placeholder="Lipește cheia API aici"><div class="keyactions"><button id="saveKey" type="button">Salvează cheia</button><button id="forgetKey" class="secondary" type="button">Șterge cheia</button></div><small>Nu trimite cheia nimănui. Restricțiile Google pentru site și API trebuie păstrate.</small></details>
 
-<section class="results"><div class="sectionhead"><h2>Pentru tine</h2><span id="count"></span></div><div id="message">Se încarcă biblioteca…</div><div id="items" class="items"></div><div id="moreResults" class="more-results"></div><div class="more-results"><button id="expandLibrary" class="load-more" type="button" hidden>Extinde biblioteca</button></div></section>
-<section class="player panel"><div class="sectionhead"><h2>Acum se redă</h2><span id="playStatus">Alege un material</span></div><div id="player"><div class="player-placeholder">Alege un material din bibliotecă pentru a începe.</div></div><div id="nowPlaying">Materialele selectate se redau aici.</div></section>
+<section class="results"><div class="sectionhead"><h2>Videoclipuri pentru tine</h2><span id="count"></span></div><div id="message">Se încarcă biblioteca…</div><div id="items" class="items"></div><div id="moreResults" class="more-results"></div><div class="more-results"><button id="expandLibrary" class="load-more" type="button" hidden>Extinde biblioteca</button></div></section>
+<section class="player panel"><div class="sectionhead"><h2>Player</h2><span id="playStatus">Alege un material</span></div><div id="player"><div class="player-placeholder">Alege un material din bibliotecă pentru a începe.</div></div><div id="nowPlaying">Materialele selectate se redau aici.</div></section>
 <section class="note panel"><b>Despre conținut</b><p>G-Way caută în YouTube, Internet Archive și Wikimedia Commons. YouTube se redă prin playerul oficial; fișierele compatibile din arhive se redau direct aici. Respectăm licențele și restricțiile fiecărei surse. Serviciul nu descarcă și nu ocolește protecțiile materialelor.</p></section>
-</main><nav><a class="active" href="#">⌂<small>Acasă</small></a><a href="#searchForm">⌕<small>Caută</small></a><a href="#items">▤<small>Bibliotecă</small></a><a href="#player">▶<small>Player</small></a></nav>
-<script src="app.js"></script><script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script></body></html>
+</main><script src="app.js"></script><script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script></body></html>
